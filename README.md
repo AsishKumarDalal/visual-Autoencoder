@@ -4,9 +4,8 @@
 
 ![TensorFlow](https://img.shields.io/badge/TensorFlow-2.x-orange?style=for-the-badge&logo=tensorflow)
 ![Python](https://img.shields.io/badge/Python-3.x-blue?style=for-the-badge&logo=python)
-![License](https://img.shields.io/badge/License-MIT-green?style=for-the-badge)
 
-*Advanced Deep Learning implementations for generative modeling and image processing*
+_Advanced Deep Learning implementations for generative modeling and image processing_
 
 </div>
 
@@ -42,41 +41,33 @@ VAEs represent a revolutionary approach to generative modeling, combining the po
 #### 🏗️ Core Architecture Components
 
 <div align="center">
-
-```mermaid
-graph LR
-    A[Input Data] --> B[Encoder]
-    B --> C[Latent Space μ, σ²]
-    C --> D[Sampling Layer]
-    D --> E[Decoder]
-    E --> F[Reconstructed Output]
-    
-    style A fill:#e1f5fe
-    style C fill:#f3e5f5
-    style F fill:#e8f5e8
-```
+![image](images/98612autoencoder.jpg)
 
 </div>
 
-| Component | Function | Key Feature |
-|-----------|----------|-------------|
-| **🔍 Encoder** | Maps input → latent parameters | Learns compressed representations |
+| Component           | Function                         | Key Feature                        |
+| ------------------- | -------------------------------- | ---------------------------------- |
+| **🔍 Encoder**      | Maps input → latent parameters   | Learns compressed representations  |
 | **🌌 Latent Space** | Lower-dimensional representation | Enables interpolation & generation |
-| **🎲 Sampling** | Stochastic latent sampling | Reparameterization trick |
-| **🔄 Decoder** | Reconstructs from latent codes | Generates new data samples |
+| **🎲 Sampling**     | Stochastic latent sampling       | Reparameterization trick           |
+| **🔄 Decoder**      | Reconstructs from latent codes   | Generates new data samples         |
 
 ### 📊 Loss Function Architecture
 
 VAEs optimize a sophisticated **dual-objective** loss function:
 
 #### 🎯 Reconstruction Loss
-> *"How well can we rebuild the original?"*
+
+> _"How well can we rebuild the original?"_
+
 - **Method**: Binary Cross-Entropy
 - **Purpose**: Pixel-wise fidelity measurement
 - **Impact**: Ensures meaningful reconstructions
 
 #### 📐 KL Divergence Loss
-> *"How close is our latent space to a standard normal distribution?"*
+
+> _"How close is our latent space to a standard normal distribution?"_
+
 - **Method**: Kullback-Leibler divergence
 - **Purpose**: Regularization & smooth latent space
 - **Impact**: Enables meaningful interpolation
@@ -88,11 +79,13 @@ The **reparameterization trick** is arguably the most crucial innovation that ma
 #### 🚫 **The Problem Without Reparameterization**
 
 In a naive approach, we would sample directly from the latent distribution:
+
 ```
 z ~ N(μ, σ²)  # Direct sampling - NOT differentiable!
 ```
 
 This creates a **gradient flow problem**: backpropagation cannot flow through random sampling operations because:
+
 - Random sampling introduces **discontinuities** in the computational graph
 - Gradients become **undefined** at sampling points
 - The network cannot learn to adjust μ and σ² parameters
@@ -121,10 +114,12 @@ class Sampling(layers.Layer):
 #### 📐 **Mathematical Foundation**
 
 The reparameterization maintains the exact same probability distribution:
+
 - **Original**: `z ~ N(μ, σ²)`
 - **Reparameterized**: `z = μ + σ * ε` where `ε ~ N(0,1)`
 
 This transformation enables:
+
 - **∂L/∂μ**: Direct gradient computation for mean parameters
 - **∂L/∂σ**: Gradient flow through variance parameters
 - **Stable Training**: Consistent gradient magnitudes across batches
@@ -140,6 +135,7 @@ This transformation enables:
 The one-hot encoding approach represents the **most direct and interpretable** method for incorporating class information into VAE training. This implementation treats class labels as explicit categorical features that are concatenated with image representations.
 
 #### ⚙️ **Core Configuration**
+
 - **Latent Dimensions**: `2D` (optimized for visualization and analysis)
 - **Input Processing**: `28×28×1` grayscale images + `10D` one-hot encoded labels
 - **Label Representation**: Each class (0-9) becomes a 10-dimensional binary vector
@@ -148,12 +144,13 @@ The one-hot encoding approach represents the **most direct and interpretable** m
 #### 🏗️ **Detailed Architecture Breakdown**
 
 **🔍 Encoder Pipeline:**
+
 ```
 📷 MNIST Image (28×28×1)
     ↓
 🔲 Conv2D(32 filters, 3×3, stride=2) → ReLU    # Extract low-level features
     ↓
-🔲 Conv2D(64 filters, 3×3, stride=2) → ReLU    # Extract high-level features  
+🔲 Conv2D(64 filters, 3×3, stride=2) → ReLU    # Extract high-level features
     ↓
 📏 Flatten() → Vector(3136,)                   # Linearize feature maps
     ↓
@@ -168,6 +165,7 @@ The one-hot encoding approach represents the **most direct and interpretable** m
 ```
 
 **🔄 Decoder Pipeline:**
+
 ```
 🎲 Sampled Latent z (2,) ──────┐
                                ├→ Concatenate → Vector(12,)
@@ -190,6 +188,7 @@ The one-hot encoding approach represents the **most direct and interpretable** m
 - **🎨 Controlled Generation**: Direct mapping between class indices and generated samples
 
 #### 📊 **Training Characteristics**
+
 ```yaml
 Epochs: 10
 Batch Size: 128
@@ -200,6 +199,7 @@ Memory Usage: Minimal overhead from one-hot vectors
 ```
 
 #### 💡 **When to Use This Approach**
+
 - **Educational purposes**: Clear, understandable architecture
 - **Small vocabularies**: Efficient for ≤100 classes
 - **Interpretability requirements**: Need explicit class-feature relationships
@@ -214,6 +214,7 @@ Memory Usage: Minimal overhead from one-hot vectors
 The embedding-based approach represents a **more sophisticated and scalable** method for handling categorical information. Instead of treating classes as fixed one-hot vectors, this implementation learns **dense, distributed representations** of class labels that can capture semantic relationships and enable more efficient processing.
 
 #### ⚙️ **Enhanced Configuration**
+
 - **Latent Dimensions**: `2D` (maintained for comparison with one-hot version)
 - **Label Processing**: `Embedding Layer: 10 classes → 8D dense vectors`
 - **Learned Representations**: Dense vectors that can capture class relationships
@@ -222,6 +223,7 @@ The embedding-based approach represents a **more sophisticated and scalable** me
 #### 🏗️ **Advanced Architecture Breakdown**
 
 **🔍 Enhanced Encoder Pipeline:**
+
 ```
 📷 MNIST Image (28×28×1)
     ↓
@@ -231,7 +233,7 @@ The embedding-based approach represents a **more sophisticated and scalable** me
     ↓
 📏 Flatten() → Image Features(3136,)
     ↓
-🏷️ Class Index (scalar) 
+🏷️ Class Index (scalar)
     ↓
 🔤 Embedding(10 → 8) → Dense Label Vector(8,)   # LEARNED class representation
     ↓
@@ -246,6 +248,7 @@ The embedding-based approach represents a **more sophisticated and scalable** me
 ```
 
 **🔄 Enhanced Decoder Pipeline:**
+
 ```
 🎲 Sampled Latent z (2,) ────────┐
                                  ├→ Concatenate → Vector(10,)
@@ -254,7 +257,7 @@ The embedding-based approach represents a **more sophisticated and scalable** me
 🧠 Dense(3136, ReLU) → Sophisticated joint processing
     ↓
 📐 Reshape(7,7,64) → Spatial preparation
-    ↓  
+    ↓
 🔲 Conv2DTranspose(64, 3×3, stride=2) → ReLU  # Guided upsampling
     ↓
 🔲 Conv2DTranspose(32, 3×3, stride=2) → ReLU  # Fine-detail generation
@@ -265,20 +268,23 @@ The embedding-based approach represents a **more sophisticated and scalable** me
 #### 🚀 **Revolutionary Improvements Over One-Hot**
 
 **🔤 Learned Semantic Representations:**
+
 - **Adaptive Learning**: Embeddings evolve to capture meaningful class relationships
 - **Dimension Efficiency**: 8D embeddings vs 10D one-hot (20% reduction)
 - **Semantic Clustering**: Similar digits develop similar embedding vectors
 - **Transferability**: Learned embeddings can be reused in other tasks
 
 **📊 Enhanced Training Infrastructure:**
+
 ```python
 # Sophisticated metric tracking system
 self.total_loss_tracker = tf.keras.metrics.Mean(name="total_loss")
-self.reconstruction_loss_tracker = tf.keras.metrics.Mean(name="reconstruction_loss") 
+self.reconstruction_loss_tracker = tf.keras.metrics.Mean(name="reconstruction_loss")
 self.kl_loss_tracker = tf.keras.metrics.Mean(name="kl_loss")
 ```
 
 **⚡ Computational Advantages:**
+
 - **Memory Efficiency**: Dense representations require less storage
 - **Scalability**: Efficiently handles thousands of classes
 - **Gradient Flow**: Smoother optimization through learned embeddings
@@ -296,15 +302,17 @@ label_embed = layers.Embedding(
 ```
 
 This simple layer transforms categorical indices into **rich, learnable feature vectors** that:
+
 - **Capture Similarities**: Digits 6 and 8 might develop similar embeddings
 - **Enable Arithmetic**: Embedding space allows meaningful vector operations
 - **Scale Gracefully**: Easily handles 10 classes or 10,000 classes
 - **Learn Hierarchies**: Can discover digit group relationships (odd/even, curved/straight)
 
 #### 📈 **Performance Characteristics**
+
 ```yaml
 Training Epochs: 10
-Batch Size: 128  
+Batch Size: 128
 Final Loss: ~16,000 (different scaling)
 Embedding Dimension: 8
 Convergence: Faster initial learning, stable final performance
@@ -312,6 +320,7 @@ Scalability: Excellent for large vocabularies
 ```
 
 #### 🎯 **Optimal Use Cases**
+
 - **Large Vocabularies**: >100 classes benefit significantly
 - **Production Systems**: Scalable architecture for real applications
 - **Transfer Learning**: Embeddings can be pre-trained and reused
@@ -327,6 +336,7 @@ Scalability: Excellent for large vocabularies
 The denoising VAE represents a **paradigm shift** from generative modeling to **restorative image processing**. This implementation transforms the VAE architecture into a sophisticated image enhancement system that learns to reverse various forms of image degradation.
 
 #### ⚙️ **Mission-Critical Configuration**
+
 - **Latent Dimensions**: `16D` (significantly higher capacity for detail preservation)
 - **Training Paradigm**: **Supervised learning** with corrupted→clean image pairs
 - **Noise Simulation**: Systematic blur introduction via downsample-upsample pipeline
@@ -338,22 +348,24 @@ The denoising VAE represents a **paradigm shift** from generative modeling to **
 def blur_images(images):
     # Step 1: Simulate information loss through downsampling
     images_small = tf.image.resize(images, [14, 14])    # 28×28 → 14×14 (75% data loss)
-    
+
     # Step 2: Restore original dimensions (but with lost high-frequency details)
     images_blurred = tf.image.resize(images_small, [28, 28])  # 14×14 → 28×28 (interpolated)
-    
+
     return images_blurred
 ```
 
 This process creates **realistic degradation** that mimics:
+
 - **📱 Low-resolution captures**: Camera limitations, compression artifacts
-- **📶 Network transmission**: Bandwidth-limited image streaming  
+- **📶 Network transmission**: Bandwidth-limited image streaming
 - **💾 Storage compression**: JPEG artifacts, file size optimization
 - **🔄 Processing chains**: Multiple resize operations in image pipelines
 
 #### 🏗️ **High-Capacity Architecture Design**
 
 **🔍 Enhanced Encoder (Information Extraction):**
+
 ```
 📷 Blurred Input (28×28×1) - Degraded image
     ↓
@@ -370,6 +382,7 @@ This process creates **realistic degradation** that mimics:
 ```
 
 **🔄 High-Fidelity Decoder (Detail Restoration):**
+
 ```
 🎲 Rich Latent Code z (16,) - Contains restoration information
     ↓
@@ -388,12 +401,12 @@ This process creates **realistic degradation** that mimics:
 
 The increased latent dimensionality serves **critical reconstruction purposes**:
 
-| Aspect | 2D Latent (CVAE) | 16D Latent (Denoising) | Impact |
-|--------|-------------------|-------------------------|---------|
-| **Information Capacity** | Minimal | High | 8× more detail storage |
-| **Feature Granularity** | Coarse | Fine | Preserves texture details |
+| Aspect                     | 2D Latent (CVAE)    | 16D Latent (Denoising)    | Impact                       |
+| -------------------------- | ------------------- | ------------------------- | ---------------------------- |
+| **Information Capacity**   | Minimal             | High                      | 8× more detail storage       |
+| **Feature Granularity**    | Coarse              | Fine                      | Preserves texture details    |
 | **Reconstruction Quality** | Good for generation | Excellent for restoration | Sharp, artifact-free outputs |
-| **Training Stability** | Fast convergence | Stable, detailed learning | Robust denoising performance |
+| **Training Stability**     | Fast convergence    | Stable, detailed learning | Robust denoising performance |
 
 #### 🎓 **Supervised Learning Paradigm**
 
@@ -403,13 +416,14 @@ Unlike generative CVAEs, the denoising VAE uses **supervised training**:
 # Training pairs: Corrupted → Clean
 train_dataset = tf.data.Dataset.from_tensor_slices(
     (x_train_blur,    # Input: Blurred/degraded images
-     x_train)         # Target: Original clean images  
+     x_train)         # Target: Original clean images
 ).shuffle(1024).batch(batch_size)
 ```
 
 **🎯 Learning Objective:**
+
 - **Input**: Degraded image `x_corrupted`
-- **Target**: Original clean image `x_clean`  
+- **Target**: Original clean image `x_clean`
 - **Goal**: Learn mapping `f: x_corrupted → x_clean`
 - **Challenge**: Recover lost information from available context
 
@@ -435,28 +449,35 @@ Quality Assessment:
   Generalization: Works on various blur types
 ```
 
+Output:
+![image](images/image.png)
+
 #### 🔬 **Advanced Loss Function Analysis**
 
 The denoising VAE optimizes a **specialized dual objective**:
 
 **🎯 Reconstruction Loss (Primary)**:
+
 ```python
 # Measures restoration quality
 recon_loss = tf.reduce_mean(tf.reduce_sum(
     tf.keras.losses.binary_crossentropy(clean_batch, reconstruction)
 ))
 ```
+
 - **Purpose**: Pixel-level fidelity between restored and original images
 - **Impact**: Drives the network to recover fine details and sharp edges
 - **Weight**: Dominates the loss function for restoration quality
 
 **📐 KL Divergence Loss (Regularization)**:
-```python  
+
+```python
 # Maintains structured latent space
 kl_loss = -0.5 * tf.reduce_mean(
     tf.reduce_sum(1 + z_log_var - tf.square(z_mean) - tf.exp(z_log_var), axis=1)
 )
 ```
+
 - **Purpose**: Prevents overfitting to specific noise patterns
 - **Impact**: Ensures robust denoising across different degradation types
 - **Weight**: Balanced to maintain generalization without sacrificing quality
@@ -464,26 +485,31 @@ kl_loss = -0.5 * tf.reduce_mean(
 #### 🚀 **Real-World Applications**
 
 **📱 Mobile Photography Enhancement:**
+
 - Low-light image restoration
 - Compression artifact removal
 - Super-resolution preprocessing
 
 **🏥 Medical Image Processing:**
+
 - MRI/CT scan noise reduction
 - Ultrasound image clarification
 - Microscopy image enhancement
 
 **🛰️ Satellite Imagery:**
+
 - Atmospheric distortion correction
 - Resolution enhancement
 - Cloud artifact removal
 
 **🎥 Video Processing:**
+
 - Real-time stream enhancement
 - Archive footage restoration
 - Compression artifact suppression
 
 #### 💡 **When to Choose Denoising VAE**
+
 - **Quality over speed**: When restoration quality is paramount
 - **Specific degradation types**: Known corruption patterns to reverse
 - **Supervised data availability**: Paired clean/corrupted training sets
@@ -576,7 +602,7 @@ kl_loss = -0.5 * tf.reduce_mean(
   </tr>
 </table>
 
-<small>*Higher values due to different loss scaling methodology</small>
+<small>\*Higher values due to different loss scaling methodology</small>
 
 ---
 
@@ -584,10 +610,10 @@ kl_loss = -0.5 * tf.reduce_mean(
 
 <div align="center">
 
-| 🎨 **Creative** | 🔬 **Research** | 🏭 **Production** |
-|-----------------|-----------------|-------------------|
-| Art Generation | Data Augmentation | Quality Control |
-| Style Transfer | Anomaly Detection | Image Enhancement |
+| 🎨 **Creative**   | 🔬 **Research**         | 🏭 **Production**    |
+| ----------------- | ----------------------- | -------------------- |
+| Art Generation    | Data Augmentation       | Quality Control      |
+| Style Transfer    | Anomaly Detection       | Image Enhancement    |
 | Interactive Tools | Representation Learning | Automated Processing |
 
 </div>
@@ -595,7 +621,7 @@ kl_loss = -0.5 * tf.reduce_mean(
 ### 🔥 **Popular Use Cases**
 
 - **🎲 Synthetic Data Generation**: Create unlimited training samples
-- **📈 Data Augmentation**: Boost model performance with diverse data  
+- **📈 Data Augmentation**: Boost model performance with diverse data
 - **🖼️ Image Enhancement**: Professional-grade denoising solutions
 - **🧪 Latent Space Exploration**: Understand learned representations
 - **🎯 Controlled Generation**: Precise class-specific sample creation
@@ -606,12 +632,12 @@ kl_loss = -0.5 * tf.reduce_mean(
 
 <div align="center">
 
-| Component | Version | Purpose |
-|-----------|---------|---------|
-| 🐍 **Python** | 3.x | Core runtime |
-| 🧠 **TensorFlow** | 2.x | Deep learning framework |
-| 🔢 **NumPy** | Latest | Numerical computing |
-| 📊 **Matplotlib** | Latest | Visualization |
+| Component         | Version | Purpose                 |
+| ----------------- | ------- | ----------------------- |
+| 🐍 **Python**     | 3.x     | Core runtime            |
+| 🧠 **TensorFlow** | 2.x     | Deep learning framework |
+| 🔢 **NumPy**      | Latest  | Numerical computing     |
+| 📊 **Matplotlib** | Latest  | Visualization           |
 
 </div>
 
