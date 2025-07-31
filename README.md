@@ -40,10 +40,9 @@ VAEs represent a revolutionary approach to generative modeling, combining the po
 
 #### 🏗️ Core Architecture Components
 
-<div align="center">
+
 ![image](images/98612autoencoder.jpg)
 
-</div>
 
 | Component           | Function                         | Key Feature                        |
 | ------------------- | -------------------------------- | ---------------------------------- |
@@ -449,7 +448,7 @@ Quality Assessment:
   Generalization: Works on various blur types
 ```
 
-Output:
+#### 🎯 **Output: **
 ![image](images/image.png)
 
 #### 🔬 **Advanced Loss Function Analysis**
